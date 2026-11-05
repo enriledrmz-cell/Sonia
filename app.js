@@ -353,10 +353,16 @@ function borrarTodoObs(){if(!confirm('¿Borrar todas las observaciones?'))return
 function pintarObAlumnos(){const sel=document.getElementById('ob-al');if(!sel)return;const actual=sel.value;sel.innerHTML='<option value="">— Selecciona —</option>'+gAl().map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');if(gAl().includes(actual))sel.value=actual;}
 let dosCampoActivo='lenguajes';
 const DOS_MESES=['SEP','OCT','NOV','DIC','ENE','FEB','MAR','ABR','MAY','JUN','JUL'];
+const DOSIFICACION_VERSION='excel-textos-meses-vacios-v1';
 function cargarDosificacion(){
   try{
-    const guardado=JSON.parse(localStorage.getItem('d_dosificacion')||'null');
-    if(Array.isArray(guardado)&&guardado.length) DOSIFICACION=guardado;
+    if(localStorage.getItem('d_dosificacion_version')!==DOSIFICACION_VERSION){
+      localStorage.removeItem('d_dosificacion');
+      localStorage.setItem('d_dosificacion_version',DOSIFICACION_VERSION);
+    } else {
+      const guardado=JSON.parse(localStorage.getItem('d_dosificacion')||'null');
+      if(Array.isArray(guardado)&&guardado.length) DOSIFICACION=guardado;
+    }
   }catch(e){console.warn('No se pudo leer la dosificación guardada.',e);}
   DOSIFICACION.forEach(f=>{if(!Array.isArray(f.rows))f.rows=[];});
 }

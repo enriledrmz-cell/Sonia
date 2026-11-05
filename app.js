@@ -387,11 +387,21 @@ function agregarDosificacion(){
   renderDosificacion();
 }
 function valorDos(id){return document.getElementById(id)?.value.trim()||'';}
+function guardarDosificacionCompleta(){
+  const f=DOSIFICACION.find(x=>x.key===dosCampoActivo); if(!f)return;
+  f.rows.forEach((_,i)=>{
+    if(document.getElementById(`dos-c-${f.key}-${i}`)) guardarFilaDos(f.key,i);
+  });
+  guardarDosificacionLocal();
+  alert('✅ Dosificación guardada correctamente.');
+}
 function guardarFilaDos(fieldKey,index){
   const f=DOSIFICACION.find(x=>x.key===fieldKey);if(!f||!f.rows[index])return;
   f.rows[index].contenido=valorDos(`dos-c-${fieldKey}-${index}`);
   f.rows[index].pda=valorDos(`dos-p-${fieldKey}-${index}`);
-  f.rows[index].meses=DOS_MESES.map((_,m)=>valorDos(`dos-m-${fieldKey}-${index}-${m}`));
+  const mesesActuales=Array.isArray(f.rows[index].meses)?f.rows[index].meses.slice():Array(DOS_MESES.length).fill('');
+  DOS_MESES.forEach((_,m)=>{const input=document.getElementById(`dos-m-${fieldKey}-${index}-${m}`);if(input)mesesActuales[m]=input.value.trim();});
+  f.rows[index].meses=mesesActuales;
   f.rows[index].nivel=valorDos(`dos-n-${fieldKey}-${index}`);
   if(!f.rows[index].contenido||!f.rows[index].pda){alert('El contenido y el PDA no pueden quedar vacíos.');return;}
   guardarDosificacionLocal();renderDosificacion();
@@ -412,8 +422,9 @@ function renderDosificacion(){
     return texto&&coincideMes;
   });
   const count=document.getElementById('dos-contador');if(count)count.textContent=`${rows.length} registro${rows.length!==1?'s':''}${mesFiltro!==''?' con valor en '+DOS_MESES[Number(mesFiltro)]:''}`;
-  let html=`<div class="dos-heading"><strong>${esc(field.label)}</strong><span>${rows.length} registro${rows.length!==1?'s':''}</span></div><div class="dos-scroll"><table class="dos-table dos-edit-table"><thead><tr><th>CONTENIDO</th><th>PROCESO DE DESARROLLO Y APRENDIZAJE / PDA</th>${DOS_MESES.map(m=>`<th>${m}</th>`).join('')}<th>NIVEL</th><th>ACCIONES</th></tr></thead><tbody>`;
-  rows.forEach(r=>{const i=r._i;const meses=Array.isArray(r.meses)?r.meses:Array(DOS_MESES.length).fill('');html+=`<tr><td><textarea id="dos-c-${field.key}-${i}" class="dos-cell-input dos-wide">${esc(r.contenido)}</textarea></td><td><textarea id="dos-p-${field.key}-${i}" class="dos-cell-input dos-pda-input">${esc(r.pda)}</textarea></td>${DOS_MESES.map((_,m)=>`<td><input id="dos-m-${field.key}-${i}-${m}" class="dos-cell-input dos-month-input" value="${esc(meses[m]||'')}" placeholder="x o número"></td>`).join('')}<td><input id="dos-n-${field.key}-${i}" class="dos-cell-input dos-level-input" value="${esc(r.nivel||'')}" placeholder="nivel"></td><td class="dos-actions"><button type="button" class="btn dos-save" onclick="guardarFilaDos('${field.key}',${i})">💾</button><button type="button" class="btn dos-delete" onclick="eliminarFilaDos('${field.key}',${i})">🗑</button></td></tr>`;});
+  const mesesVisibles=mesFiltro===''?DOS_MESES.map((label,idx)=>({label,idx})):[{label:DOS_MESES[Number(mesFiltro)],idx:Number(mesFiltro)}];
+  let html=`<div class="dos-heading"><strong>${esc(field.label)}</strong><span>${rows.length} registro${rows.length!==1?'s':''}${mesFiltro!==''?' · '+DOS_MESES[Number(mesFiltro)]:''}</span></div><div class="dos-scroll"><table class="dos-table dos-edit-table"><thead><tr><th>CONTENIDO</th><th>PROCESO DE DESARROLLO Y APRENDIZAJE / PDA</th>${mesesVisibles.map(m=>`<th>${m.label}</th>`).join('')}<th>NIVEL</th><th>ACCIONES</th></tr></thead><tbody>`;
+  rows.forEach(r=>{const i=r._i;const meses=Array.isArray(r.meses)?r.meses:Array(DOS_MESES.length).fill('');html+=`<tr><td><textarea id="dos-c-${field.key}-${i}" class="dos-cell-input dos-wide">${esc(r.contenido)}</textarea></td><td><textarea id="dos-p-${field.key}-${i}" class="dos-cell-input dos-pda-input">${esc(r.pda)}</textarea></td>${mesesVisibles.map(m=>`<td><input id="dos-m-${field.key}-${i}-${m.idx}" class="dos-cell-input dos-month-input" value="${esc(meses[m.idx]||'')}" placeholder="x o número"></td>`).join('')}<td><input id="dos-n-${field.key}-${i}" class="dos-cell-input dos-level-input" value="${esc(r.nivel||'')}" placeholder="nivel"></td><td class="dos-actions"><button type="button" class="btn dos-save" onclick="guardarFilaDos('${field.key}',${i})">💾</button><button type="button" class="btn dos-delete" onclick="eliminarFilaDos('${field.key}',${i})">🗑</button></td></tr>`;});
   html+='</tbody></table></div>';
   if(!rows.length)html+='<p class="nd">Aún no hay registros. Agrega el primero arriba.</p>'; cont.innerHTML=html;
 }

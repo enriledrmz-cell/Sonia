@@ -268,7 +268,7 @@
     <div class="dos-entry">
       <div class="fg"><label>Contenido</label><textarea id="dos-nuevo-contenido" placeholder="Escribe el contenido…"></textarea></div>
       <div class="fg"><label>Proceso de Desarrollo y Aprendizaje / PDA</label><textarea id="dos-nuevo-pda" placeholder="Escribe el PDA…"></textarea></div>
-      <div class="dos-entry-actions"><button class="btn bp" type="button" onclick="agregarDosificacion()">➕ Agregar registro</button></div>
+      <div class="dos-entry-actions"><button class="btn bp" type="button" onclick="agregarDosificacion()">➕ Agregar registro</button><button class="btn dos-save-all" type="button" onclick="guardarDosificacionCompleta()">💾 Guardar dosificación</button></div>
     </div>
     <div class="dos-tools"><input id="dos-buscar" type="search" placeholder="Buscar contenido o PDA…" oninput="filtrarDosificacion()"><select id="dos-filtro-mes" onchange="filtrarDosificacion()"><option value="">Todos los meses</option><option value="0">SEP</option><option value="1">OCT</option><option value="2">NOV</option><option value="3">DIC</option><option value="4">ENE</option><option value="5">FEB</option><option value="6">MAR</option><option value="7">ABR</option><option value="8">MAY</option><option value="9">JUN</option><option value="10">JUL</option></select><span id="dos-contador"></span></div>
     <div id="dos-contenido"></div>

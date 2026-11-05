@@ -352,24 +352,58 @@ function borrarObs(id){if(!confirm('¿Eliminar esta observación?'))return;windo
 function borrarTodoObs(){if(!confirm('¿Borrar todas las observaciones?'))return;window.sObs([]);buildOb();}
 function pintarObAlumnos(){const sel=document.getElementById('ob-al');if(!sel)return;const actual=sel.value;sel.innerHTML='<option value="">— Selecciona —</option>'+gAl().map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');if(gAl().includes(actual))sel.value=actual;}
 let dosCampoActivo='lenguajes';
+const DOS_MESES=['SEP','OCT','NOV','DIC','ENE','FEB','MAR','ABR','MAY','JUN','JUL'];
+function cargarDosificacion(){
+  try{
+    const guardado=JSON.parse(localStorage.getItem('d_dosificacion')||'null');
+    if(Array.isArray(guardado)&&guardado.length) DOSIFICACION=guardado;
+  }catch(e){console.warn('No se pudo leer la dosificación guardada.',e);}
+  DOSIFICACION.forEach(f=>{if(!Array.isArray(f.rows))f.rows=[];});
+}
+function guardarDosificacionLocal(){localStorage.setItem('d_dosificacion',JSON.stringify(DOSIFICACION));}
 function buildDosificacion(){
   const tabs=document.getElementById('dos-tabs'), cont=document.getElementById('dos-contenido');
   if(!tabs||!cont||typeof DOSIFICACION==='undefined')return;
+  cargarDosificacion();
   tabs.innerHTML=DOSIFICACION.map(f=>`<button class="dos-tab ${f.key===dosCampoActivo?'active':''}" onclick="seleccionarDosificacion('${f.key}')">${esc(f.label)}</button>`).join('');
   renderDosificacion();
 }
 function seleccionarDosificacion(key){dosCampoActivo=key;buildDosificacion();}
 function filtrarDosificacion(){renderDosificacion();}
+function agregarDosificacion(){
+  const contenido=document.getElementById('dos-nuevo-contenido')?.value.trim();
+  const pda=document.getElementById('dos-nuevo-pda')?.value.trim();
+  if(!contenido||!pda){alert('Escribe el contenido y el PDA antes de agregar.');return;}
+  const f=DOSIFICACION.find(x=>x.key===dosCampoActivo); if(!f)return;
+  f.rows.push({contenido,pda,meses:Array(DOS_MESES.length).fill(''),nivel:''});
+  guardarDosificacionLocal();
+  document.getElementById('dos-nuevo-contenido').value='';document.getElementById('dos-nuevo-pda').value='';
+  renderDosificacion();
+}
+function valorDos(id){return document.getElementById(id)?.value.trim()||'';}
+function guardarFilaDos(fieldKey,index){
+  const f=DOSIFICACION.find(x=>x.key===fieldKey);if(!f||!f.rows[index])return;
+  f.rows[index].contenido=valorDos(`dos-c-${fieldKey}-${index}`);
+  f.rows[index].pda=valorDos(`dos-p-${fieldKey}-${index}`);
+  f.rows[index].meses=DOS_MESES.map((_,m)=>valorDos(`dos-m-${fieldKey}-${index}-${m}`));
+  f.rows[index].nivel=valorDos(`dos-n-${fieldKey}-${index}`);
+  if(!f.rows[index].contenido||!f.rows[index].pda){alert('El contenido y el PDA no pueden quedar vacíos.');return;}
+  guardarDosificacionLocal();renderDosificacion();
+}
+function eliminarFilaDos(fieldKey,index){
+  const f=DOSIFICACION.find(x=>x.key===fieldKey);if(!f)return;
+  if(!confirm('¿Eliminar este registro de la dosificación?'))return;
+  f.rows.splice(index,1);guardarDosificacionLocal();renderDosificacion();
+}
 function renderDosificacion(){
   const cont=document.getElementById('dos-contenido'), q=(document.getElementById('dos-buscar')?.value||'').trim().toLowerCase();
   const field=DOSIFICACION.find(f=>f.key===dosCampoActivo)||DOSIFICACION[0]; if(!field||!cont)return;
-  const meses=['SEP','OCT','NOV','DIC','ENE','FEB','MAR','ABR','MAY','JUN','JUL'];
-  const rows=field.rows.filter(r=>!q||r.contenido.toLowerCase().includes(q)||r.pda.toLowerCase().includes(q));
-  const count=document.getElementById('dos-contador');if(count)count.textContent=`${rows.length} PDA${rows.length!==1?'s':''}`;
-  let html=`<div class="dos-heading"><strong>${esc(field.label)}</strong><span>3° Preescolar · ${rows.length} resultados</span></div><div class="dos-scroll"><table class="dos-table"><thead><tr><th>CONTENIDO</th><th>PROCESO DE DESARROLLO Y APRENDIZAJE</th>${meses.map(m=>`<th>${m}</th>`).join('')}<th>NIVEL</th></tr></thead><tbody>`;
-  rows.forEach(r=>{html+=`<tr><td class="dos-content">${esc(r.contenido)}</td><td class="dos-pda">${esc(r.pda)}</td>${r.meses.map(v=>`<td class="dos-month ${v?'has-mark':''}">${esc(v)}</td>`).join('')}<td>${esc(r.nivel)}</td></tr>`;});
+  const rows=field.rows.map((r,i)=>({...r,_i:i})).filter(r=>!q||r.contenido.toLowerCase().includes(q)||r.pda.toLowerCase().includes(q));
+  const count=document.getElementById('dos-contador');if(count)count.textContent=`${rows.length} registro${rows.length!==1?'s':''}`;
+  let html=`<div class="dos-heading"><strong>${esc(field.label)}</strong><span>${rows.length} registro${rows.length!==1?'s':''}</span></div><div class="dos-scroll"><table class="dos-table dos-edit-table"><thead><tr><th>CONTENIDO</th><th>PROCESO DE DESARROLLO Y APRENDIZAJE / PDA</th>${DOS_MESES.map(m=>`<th>${m}</th>`).join('')}<th>NIVEL</th><th>ACCIONES</th></tr></thead><tbody>`;
+  rows.forEach(r=>{const i=r._i;const meses=Array.isArray(r.meses)?r.meses:Array(DOS_MESES.length).fill('');html+=`<tr><td><textarea id="dos-c-${field.key}-${i}" class="dos-cell-input dos-wide">${esc(r.contenido)}</textarea></td><td><textarea id="dos-p-${field.key}-${i}" class="dos-cell-input dos-pda-input">${esc(r.pda)}</textarea></td>${DOS_MESES.map((_,m)=>`<td><input id="dos-m-${field.key}-${i}-${m}" class="dos-cell-input dos-month-input" value="${esc(meses[m]||'')}" placeholder="x o número"></td>`).join('')}<td><input id="dos-n-${field.key}-${i}" class="dos-cell-input dos-level-input" value="${esc(r.nivel||'')}" placeholder="nivel"></td><td class="dos-actions"><button type="button" class="btn dos-save" onclick="guardarFilaDos('${field.key}',${i})">💾</button><button type="button" class="btn dos-delete" onclick="eliminarFilaDos('${field.key}',${i})">🗑</button></td></tr>`;});
   html+='</tbody></table></div>';
-  if(!rows.length)html+='<p class="nd">No se encontraron contenidos o PDA.</p>'; cont.innerHTML=html;
+  if(!rows.length)html+='<p class="nd">Aún no hay registros. Agrega el primero arriba.</p>'; cont.innerHTML=html;
 }
 function showTab(t,btn){
   pintarObAlumnos();

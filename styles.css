@@ -348,7 +348,7 @@ header{background:linear-gradient(135deg,#0284C7,#38BDF8)}
 header h1 span{color:#fff}
 header p{color:rgba(255,255,255,.9)}
 .hico{background:#fff;border-radius:14px;padding:4px;min-width:76px;min-height:64px;box-shadow:0 3px 10px rgba(2,132,199,.22)}
-.hico img{max-width:68px!important;max-height:56px!important;object-fit:contain}
+.hico img{width:82px!important;height:60px!important;max-width:82px!important;max-height:60px!important;object-fit:contain;object-position:center;border-radius:5px}
 .tabs{border-bottom-color:#BAE6FD}.tab-btn.active{color:#0284C7;border-bottom-color:#0EA5E9;background:#E0F2FE}
 .card{border:1px solid #E0F2FE}
 .obs-info{background:#E0F2FE;border-color:#BAE6FD;color:#075985}
@@ -357,3 +357,6 @@ header p{color:rgba(255,255,255,.9)}
 /* Dosificación */
 .dos-info{margin:-5px 0 14px;padding:10px 12px;border-radius:9px;background:#E0F2FE;border:1px solid #BAE6FD;color:#075985;font-size:.82rem;line-height:1.45}
 .dos-tabs{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px}.dos-tab{border:1.5px solid #BAE6FD;background:#fff;color:#0369A1;border-radius:9px;padding:8px 12px;white-space:nowrap;font-family:Nunito,sans-serif;font-weight:800;cursor:pointer}.dos-tab.active{background:#0EA5E9;color:#fff;border-color:#0284C7}.dos-tools{display:flex;align-items:center;gap:10px;margin-bottom:10px}.dos-tools input{flex:1;padding:9px 12px;border:2px solid #C7E7F7;border-radius:9px;font-family:inherit;font-size:.86rem}.dos-tools input:focus{outline:none;border-color:#0EA5E9}.dos-tools span{font-size:.78rem;color:#64748B;white-space:nowrap}.dos-heading{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#F0F9FF;color:#075985;border:1px solid #BAE6FD;border-radius:9px 9px 0 0;font-size:.82rem}.dos-heading strong{font-family:Nunito,sans-serif;font-size:.95rem}.dos-scroll{overflow:auto;border:1px solid #BAE6FD;border-top:0;border-radius:0 0 9px 9px;max-height:70vh}.dos-table{border-collapse:collapse;min-width:1250px;width:100%;font-size:.74rem;color:#334155}.dos-table th,.dos-table td{border:1px solid #D7EAF5;padding:7px 8px;vertical-align:top;line-height:1.35}.dos-table thead th{position:sticky;top:0;background:#0284C7;color:#fff;font-family:Nunito,sans-serif;font-weight:800;text-align:center;z-index:2}.dos-table thead th:nth-child(1),.dos-table thead th:nth-child(2){text-align:left}.dos-table th:nth-child(1),.dos-table td:nth-child(1){min-width:250px;width:22%}.dos-table th:nth-child(2),.dos-table td:nth-child(2){min-width:420px;width:37%}.dos-content{font-weight:700;color:#164E63;background:#F8FDFF}.dos-pda{min-width:420px}.dos-month{text-align:center;font-weight:800;color:#94A3B8;min-width:48px}.dos-month.has-mark{background:#E0F2FE;color:#0284C7}.dos-table td:last-child{text-align:center;min-width:80px}@media(max-width:600px){.dos-tools{align-items:stretch;flex-direction:column;gap:6px}.dos-tools span{align-self:flex-end}.dos-scroll{max-height:65vh}}
+
+/* Logo Helen Keller corregido: girado, recortado y centrado */
+.print-logo{object-fit:contain!important;object-position:center;background:#fff;padding:2px;border-radius:5px}

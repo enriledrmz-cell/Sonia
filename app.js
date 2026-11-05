@@ -403,9 +403,15 @@ function eliminarFilaDos(fieldKey,index){
 }
 function renderDosificacion(){
   const cont=document.getElementById('dos-contenido'), q=(document.getElementById('dos-buscar')?.value||'').trim().toLowerCase();
+  const mesFiltro=document.getElementById('dos-filtro-mes')?.value ?? '';
   const field=DOSIFICACION.find(f=>f.key===dosCampoActivo)||DOSIFICACION[0]; if(!field||!cont)return;
-  const rows=field.rows.map((r,i)=>({...r,_i:i})).filter(r=>!q||r.contenido.toLowerCase().includes(q)||r.pda.toLowerCase().includes(q));
-  const count=document.getElementById('dos-contador');if(count)count.textContent=`${rows.length} registro${rows.length!==1?'s':''}`;
+  const rows=field.rows.map((r,i)=>({...r,_i:i})).filter(r=>{
+    const texto=!q||r.contenido.toLowerCase().includes(q)||r.pda.toLowerCase().includes(q);
+    const meses=Array.isArray(r.meses)?r.meses:Array(DOS_MESES.length).fill('');
+    const coincideMes=mesFiltro===''||String(meses[Number(mesFiltro)]||'').trim()!=='';
+    return texto&&coincideMes;
+  });
+  const count=document.getElementById('dos-contador');if(count)count.textContent=`${rows.length} registro${rows.length!==1?'s':''}${mesFiltro!==''?' con valor en '+DOS_MESES[Number(mesFiltro)]:''}`;
   let html=`<div class="dos-heading"><strong>${esc(field.label)}</strong><span>${rows.length} registro${rows.length!==1?'s':''}</span></div><div class="dos-scroll"><table class="dos-table dos-edit-table"><thead><tr><th>CONTENIDO</th><th>PROCESO DE DESARROLLO Y APRENDIZAJE / PDA</th>${DOS_MESES.map(m=>`<th>${m}</th>`).join('')}<th>NIVEL</th><th>ACCIONES</th></tr></thead><tbody>`;
   rows.forEach(r=>{const i=r._i;const meses=Array.isArray(r.meses)?r.meses:Array(DOS_MESES.length).fill('');html+=`<tr><td><textarea id="dos-c-${field.key}-${i}" class="dos-cell-input dos-wide">${esc(r.contenido)}</textarea></td><td><textarea id="dos-p-${field.key}-${i}" class="dos-cell-input dos-pda-input">${esc(r.pda)}</textarea></td>${DOS_MESES.map((_,m)=>`<td><input id="dos-m-${field.key}-${i}-${m}" class="dos-cell-input dos-month-input" value="${esc(meses[m]||'')}" placeholder="x o número"></td>`).join('')}<td><input id="dos-n-${field.key}-${i}" class="dos-cell-input dos-level-input" value="${esc(r.nivel||'')}" placeholder="nivel"></td><td class="dos-actions"><button type="button" class="btn dos-save" onclick="guardarFilaDos('${field.key}',${i})">💾</button><button type="button" class="btn dos-delete" onclick="eliminarFilaDos('${field.key}',${i})">🗑</button></td></tr>`;});
   html+='</tbody></table></div>';

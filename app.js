@@ -135,21 +135,19 @@ function mesesSeleccionadosObs(){
 }
 function guardarObs(){
   const al=document.getElementById('ob-al').value;
-  const campo=document.getElementById('ob-campo').value;
   const mes=document.getElementById('ob-mes').value;
   const txt=document.getElementById('ob-txt').value.trim();
   if(!al){alert('Selecciona un alumno antes de guardar.');return;}
-  if(!campo){alert('Selecciona un campo formativo antes de guardar.');return;}
   if(!mes){alert('Selecciona un mes antes de guardar.');return;}
   if(!txt){alert('Escribe una observación antes de guardar.');return;}
-  const reg={id:Date.now(),al,campo,mes,fecha:new Date().toLocaleDateString('es-MX'),txt};
+  const reg={id:Date.now(),al,mes,fecha:new Date().toLocaleDateString('es-MX'),txt};
   const obs=gObs();obs.push(reg);window.sObs(obs);
   document.getElementById('ob-txt').value='';
   alert(`✅ Observación de ${al} guardada.`); buildOb();
 }
 function obtenerObservacionesConsolidadas(){
   // Observaciones capturadas manualmente en esta pestaña.
-  const todas=gObs().map(o=>({...o,campo:o.campo||'General'}));
+  const todas=gObs().map(o=>({...o,campo:'Observaciones de la maestra',origen:'maestra'}));
   // También incorpora las observaciones/niveles escritos en cada evaluación.
   // Así se pueden juntar, por campo formativo, los meses elegidos.
   gEv().forEach(ev=>{
@@ -347,6 +345,19 @@ function borrarObsCampo(al,campo){if(!confirm('¿Eliminar todas las observacione
 function recuperarObservacionesMaestra(){
   const cantidad=gObs().length; buildOb();
   alert(cantidad?`✅ Se recuperaron ${cantidad} observación${cantidad===1?'':'es'} guardada${cantidad===1?'':'s'} anteriormente.`:'No se encontraron observaciones anteriores guardadas en este navegador.');
+}
+function imprimirObservacionesMaestra(){
+  const obs=gObs();
+  if(!obs.length){alert('No hay observaciones de la maestra para imprimir.');return;}
+  const por={};
+  obs.forEach(o=>{if(!por[o.al])por[o.al]=[];por[o.al].push(o);});
+  const meses=[];obs.forEach(o=>{const m=String(o.mes||'Sin mes');if(!meses.some(x=>x.toLowerCase()===m.toLowerCase()))meses.push(m);});
+  const paginas=Object.entries(por).sort((a,b)=>a[0].localeCompare(b[0],'es')).map(([al,list],i)=>{
+    const porMes={};list.forEach(o=>{const m=String(o.mes||'Sin mes').toLowerCase();if(!porMes[m])porMes[m]=[];porMes[m].push(o.txt);});
+    const tabla='<table class="concat-print-table"><thead><tr><th>Alumno</th>'+meses.map(m=>`<th>${esc(m)}</th>`).join('')+'</tr></thead><tbody><tr><th>${esc(al)}</th>'+meses.map(m=>`<td>${esc((porMes[m.toLowerCase()]||[]).join(' · '))}</td>`).join('')+'</tr></tbody></table>';
+    return `<div class="concat-print-page" style="${i?'page-break-before:always;':''}"><div class="print-header"><div><div class="print-title">📝 Observaciones de la maestra</div><div class="print-subtitle">${esc(al)}</div></div><img src="${getLogoParaImpresion()}" class="print-logo" alt=""></div>${tabla}</div>`;
+  }).join('');
+  document.getElementById('print-area').innerHTML=paginas;window.print();
 }
 function borrarObs(id){if(!confirm('¿Eliminar esta observación?'))return;window.sObs(gObs().filter(o=>o.id!==id));buildOb();}
 function borrarTodoObs(){if(!confirm('¿Borrar todas las observaciones?'))return;window.sObs([]);buildOb();}

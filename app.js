@@ -1069,6 +1069,11 @@ function construirHTMLEvaluacion(ev){
   });
   h+='</div>'; // cierra .mc-grid
   if(h==='<div class="mc-grid"></div>') h='<p style="color:#94A3B8;text-align:center;padding:20px">Esta evaluación no tiene datos registrados.</p>';
+  // Agrega las observaciones libres de la maestra debajo de los cuatro campos.
+  const obsMaestra=gObs().filter(o=>o.al===ev.al && (!o.mes || String(o.mes).toLowerCase()===String(ev.mes||'').toLowerCase()));
+  if(obsMaestra.length){
+    h+=`<div class="teacher-obs-print"><div class="teacher-obs-title">📝 Observaciones de la maestra</div>${obsMaestra.map(o=>`<div class="teacher-obs-item"><span class="teacher-obs-month">${esc(o.mes||'')}</span><span>${esc(o.txt||'')}</span></div>`).join('')}</div>`;
+  }
   h+=recListStaticHTML(ev.al,ev.recomendaciones);
   h+=`<div class="m-firma" style="margin-top:20px;padding:14px 18px;border-top:2px solid #DDE3ED;text-align:center">
     <div style="font-family:Nunito,sans-serif;font-weight:800;font-size:.9rem;color:#38BDF8">Lic. Sonia Elizabeth Cuevas León</div>
